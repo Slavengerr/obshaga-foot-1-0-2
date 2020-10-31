@@ -1,0 +1,31 @@
+.header {
+  &__link {
+    color: black;
+    font-size: 24px;
+    font-family: "Golos Medium";
+    box-sizing: border-box;
+    transition: .4s;
+    text-decoration: none;
+    &_active {
+      color: green;
+    }
+    &:hover {
+      color: green;
+      transition: color .4s;
+      cursor: pointer;
+    }
+  }
+  &__links {
+    margin-right: 40px;
+    margin-left: 100px;
+    flex-grow: 1;
+    display: flex;
+    justify-content: space-between;
+    @media screen and (min-width: 320px) and (max-width: 767px) {
+      margin-left: 0px;
+    }
+    @media screen and (min-width: 320px) and (max-width: 459px) {
+      width: 40%;
+    }
+  }
+}

@@ -1,0 +1,80 @@
+.request {
+  font-size: 24px;
+  font-family: "Golos Medium";
+  text-align: center;
+  @media screen and (min-width: 1440px) {
+    width: 800px;
+    margin: 0 auto;
+  }
+  &__submit {
+    border: 1px solid #136C48;
+    background-color: white;
+    border-radius: 10px;
+    font-size: 30px;
+    transition: color .3s;
+    transition: background-color .7s;
+    width: 50%;
+    &:hover {
+      background-color: #136C48;
+      color: white;
+      transition: background-color .7s;
+      transition: color .3s;
+    }
+  }
+  &__span {
+    display: flex;
+    float: right;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+  }
+  &__heading {
+    font-size: 30px;
+    font-family: "Golos Medium";
+  }
+  &__input {
+    @media screen and (min-width: 1440px) {
+      margin-left: 15px;
+      width: 500px;
+      height: 40px;
+      border-radius: 5px;
+    }
+  }
+}
+
+.product {
+  width: 100%;
+  text-align: center;
+  font-size: 25px;
+  font-family: "Golos Medium";
+  &__input {
+    width: 80%;
+  }
+  &__name {
+    width: 55%;
+  }
+  &__value {
+    width: 25%;
+  }
+  &__discount {
+    width: 15%;
+  }
+  &__addButton {
+    width: 100%;
+    text-align: right;
+    font-size: 20px;
+    border: 1px solid green;
+    background-color: white;
+    border-radius: 10px;
+    padding: 5px 10px;
+  }
+}
+
+td {
+  border-left: 1px solid green;
+  border-right: 1px solid green;
+}
+
+table {
+  border-collapse: collapse;
+}
