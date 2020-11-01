@@ -2,9 +2,15 @@
   font-size: 24px;
   font-family: "Golos Medium";
   text-align: center;
+  margin: 0 auto;
   @media screen and (min-width: 1440px) {
     width: 800px;
-    margin: 0 auto;
+  }
+  @media screen and (min-width: 768px) and (max-width: 1439px) {
+    width: 80%;
+  }
+  @media screen and (min-width: 320px) and (max-width: 767px) {
+    width: 100%;
   }
   &__submit {
     border: 1px solid #136C48;
@@ -23,27 +29,34 @@
   }
   &__span {
     display: flex;
-    float: right;
     align-items: center;
-    justify-content: center;
-    margin-bottom: 30px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-left: 20px;
+    margin-bottom: 20px;
   }
   &__heading {
     font-size: 30px;
     font-family: "Golos Medium";
   }
+  &__wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
+  }
   &__input {
-    @media screen and (min-width: 1440px) {
-      margin-left: 15px;
-      width: 500px;
-      height: 40px;
-      border-radius: 5px;
-    }
+    flex-grow: 1;
+    margin: 0 20px;
+    height: 30px;
+    border-radius: 7px;
+    border: 1px solid black;
   }
 }
 
 .product {
   width: 100%;
+  margin-bottom: 20px;
   text-align: center;
   font-size: 25px;
   font-family: "Golos Medium";
@@ -101,15 +114,17 @@
       }
     }
   }
-}
-
-td {
-  border-left: 1px solid green;
-  border-right: 1px solid green;
+  @media screen and (min-width: 320px) and (max-width: 400px) {
+    font-size: 15px;
+  }
+  @media screen and (min-width: 401px) and (max-width: 767px) {
+    font-size: 20px;
+  }
 }
 
 table {
-  border-collapse: collapse;
+  border: 1px solid #136C48;
+  border-radius: 10px;
 }
 
 input:checked + .product__input_checkbox::before {
