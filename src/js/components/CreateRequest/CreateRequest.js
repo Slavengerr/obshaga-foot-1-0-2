@@ -17,16 +17,26 @@ class CreateRequest extends Component {
     super(props);
     
     this.state = {
-      products: [{name: "something", price: "400", markup: "90"}]
+      products: []
     }
 
   }
 
   submitForm = (event) => {
     event.preventDefault();
-    let request = {
-        products: this.state.products
-    }
+    
+    let wrapper = document.querySelector(".request__wrapper"),
+        building = wrapper.querySelector("#order__building"),
+        markup = wrapper.querySelector("#order__markup"),
+        room = wrapper.querySelector("#order__room"),
+        comment = wrapper.querySelector("#order__comment"),
+        request = {
+          products: this.state.products,
+          building: building.value,
+          markup: markup.value,
+          room: room.value,
+          comment: comment.value
+        };
     console.log(request);
     SubmitRequest.create(request);
   }
@@ -43,9 +53,14 @@ class CreateRequest extends Component {
     return (
       <>
         <tr id = "product__row">
-          <td className = {"product__name"}><input required className = {"product__input"} id = "product__name"></input></td>
-          <td className = {"product__value"}><input required className = {"product__input"} id = "product__value"></input></td>
-          <td className = {"product__discount"}><input required className = {"product__input"} id = "product__discount"></input></td>
+          <td className = {"product__name"}><input required type = "text" className = {"product__input"} id = "product__name"></input></td>
+          <td className = {"product__value"}><input required type = "text" className = {"product__input"} id = "product__value"></input></td>
+          <td className = {"product__discount"}>
+            <div className = "product__discount_wrapper">
+              <input required type = "checkbox" className = {"product__input"} id = "product__discount"></input>
+              <label className = {"product__input_checkbox"} id = "product__discount_checkbo" htmlFor="product__discount"></label>
+            </div>
+          </td>
           <td className = {"product__add"}><button className = {"product__addButton"} type = "button" onClick = {() => {this.submitOrder()}}>+</button></td>
         </tr>
       </>
@@ -55,13 +70,14 @@ class CreateRequest extends Component {
   submitOrder() {
     let name = document.getElementById("product__name").value,
         value = document.getElementById("product__value").value,
-        discount = document.getElementById("product__discount").value;
+        discount = document.getElementById("product__discount").checked ? "Да" : "Нет";
     
     this.setState({products: this.state.products.concat({name, value, discount})});
   }
 
   render() {
     console.log(data);
+    console.log(this.state);
     let itemNew = this.state.products.map((curr, index) => {
       return (
         <>
@@ -90,23 +106,25 @@ class CreateRequest extends Component {
               {itemNew}
             </tbody>
           </table>
-          <span className = {"request__priceValue request__span"}>
-            Доплата
-            <input type = "text" className = {"request__input"}></input>
-          </span>
-          <span className = {"request__priceValue request__span"}>
-            Номер корпуса
-            <input type = "text" className = {"request__input"}></input>
-          </span>
-          <span className = {"request__priceValue request__span"}>
-            Номер комнаты
-            <input type = "text" className = {"request__input"}></input>
-          </span>
-          <span className = {"request__priceValue request__span"}>
-            Комментарий к доставке
-            <input type = "text" className = {"request__input"}></input>
-          </span>
-          <button type = "submit" onClick = {this.submitForm} className = {"request__submit"}>Отправить заявку</button>
+          <div className = "request__wrapper">
+            <span className = {"request__priceValue request__span"}>
+              Доплата
+              <input id = {"order__markup"} type = "text" className = {"request__input"}></input>
+            </span>
+            <span className = {"request__priceValue request__span"}>
+              Номер корпуса
+              <input id = {"order__building"} type = "text" className = {"request__input"}></input>
+            </span>
+            <span className = {"request__priceValue request__span"}>
+              Номер комнаты
+              <input id = {"order__room"} type = "text" className = {"request__input"}></input>
+            </span>
+            <span className = {"request__priceValue request__span"}>
+              Комментарий к доставке
+              <input id = {"order__comment"} type = "text" className = {"request__input"}></input>
+            </span>
+            <button type = "submit" onClick = {this.submitForm} className = {"request__submit"}>Отправить заявку</button>
+            </div>
         </form>
       </div>
     )
