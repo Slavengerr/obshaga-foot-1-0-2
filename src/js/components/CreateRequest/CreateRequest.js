@@ -1,14 +1,34 @@
 import React, {Component} from "react";
 import "./CreateRequest.less";
+import database from "../../firebase";
+import SubmitRequest from "./SubmitRequest/SubmitRequest";
+
+let ref = database.ref("orders"),
+    data;
+
+ref.on("value", function(snapshot) {
+  snapshot.forEach(function (childSnapshot) {
+    data = childSnapshot.val();
+  });
+});    
 
 class CreateRequest extends Component {
   constructor(props) {
     super(props);
     
     this.state = {
-      products: []
+      products: [{name: "something", price: "400", markup: "90"}]
     }
 
+  }
+
+  submitForm = (event) => {
+    event.preventDefault();
+    let request = {
+        products: this.state.products
+    }
+    console.log(request);
+    SubmitRequest.create(request);
   }
 
   deleteOrder = (index) => {
@@ -24,8 +44,8 @@ class CreateRequest extends Component {
       <>
         <tr id = "product__row">
           <td className = {"product__name"}><input required className = {"product__input"} id = "product__name"></input></td>
-          <td className = {"product__value"}><input requiredclassName = {"product__input"} id = "product__value"></input></td>
-          <td className = {"product__discount"}><input requiredclassName = {"product__input"} id = "product__discount"></input></td>
+          <td className = {"product__value"}><input required className = {"product__input"} id = "product__value"></input></td>
+          <td className = {"product__discount"}><input required className = {"product__input"} id = "product__discount"></input></td>
           <td className = {"product__add"}><button className = {"product__addButton"} type = "button" onClick = {() => {this.submitOrder()}}>+</button></td>
         </tr>
       </>
@@ -41,6 +61,7 @@ class CreateRequest extends Component {
   }
 
   render() {
+    console.log(data);
     let itemNew = this.state.products.map((curr, index) => {
       return (
         <>
@@ -85,7 +106,7 @@ class CreateRequest extends Component {
             Комментарий к доставке
             <input type = "text" className = {"request__input"}></input>
           </span>
-          <button type = "submit" className = {"request__submit"}>Отправить заявку</button>
+          <button type = "submit" onClick = {this.submitForm} className = {"request__submit"}>Отправить заявку</button>
         </form>
       </div>
     )
@@ -93,3 +114,4 @@ class CreateRequest extends Component {
 }
 
 export default CreateRequest;
+
