@@ -1,21 +1,27 @@
 import React from "react";
 import "./RequestsList.less";
 import RequestsItem from "../RequestsItem/RequestsItem";
+import database from "../../firebase";
+
+let ref = database.ref("orders");
+
+let items = [];
+ref.on("value", function(snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      items.push(childSnapshot.val());
+  });
+});
 
 class RequestsList extends React.Component {
   constructor(props) {
+
     super(props);
+
     this.state = {
-      items: [
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог", price: "90", markup: "Да"},
-        {name:"Творог, сыр, кефир, алыча, хлеб, зерна лука, петрушка, уксус, сода, овсянка, вода, минералка, газировка, пиво, водка.", price: "90", markup: "Да"}
-      ]
-    }  
+      items: items,
+      itemsList: null
+    }
+
     this.clickHandler = this.clickHandler.bind(this);
   }
 
@@ -42,13 +48,18 @@ class RequestsList extends React.Component {
         target.classList.remove("item_cover");
       }
     }
-    
+
   }
 
   render() {
-    const items = this.state.items.map((curr, index) => {
-                    return <RequestsItem name = {curr.name} clickHandler = {(() => this.clickHandler(curr.name, curr.markup, curr.price))} markup = {curr.markup} price = {curr.price} key = {index}/>
-                  });
+    setTimeout(() => {
+      let newItemsList = this.state.items.map((curr, index) => {
+        return <RequestsItem name = {curr.products[0].name} markup = {curr.markup} price = {curr.products[0].markup} key = {index}/>
+      });
+      this.setState({
+        itemsList: newItemsList
+      })
+    }, 1);
     return (
       <>
         <div className = {"listNaming"}>
@@ -56,9 +67,7 @@ class RequestsList extends React.Component {
           <span className = {"listNaming__price"}>Примерная стоимость</span>
           <span className = {"listNaming__markup"}>Доплата</span>
         </div>
-        <div id = {"list"}className = {"list"}>
-          {items}
-        </div>
+        {this.state.itemsList}
       </>
     )
   }

@@ -6,12 +6,6 @@ import SubmitRequest from "./SubmitRequest/SubmitRequest";
 let ref = database.ref("orders"),
     data;
 
-ref.on("value", function(snapshot) {
-  snapshot.forEach(function (childSnapshot) {
-    data = childSnapshot.val();
-  });
-});    
-
 class CreateRequest extends Component {
   constructor(props) {
     super(props);
@@ -37,7 +31,7 @@ class CreateRequest extends Component {
           room: room.value,
           comment: comment.value
         };
-    console.log(request);
+
     SubmitRequest.create(request);
   }
 
