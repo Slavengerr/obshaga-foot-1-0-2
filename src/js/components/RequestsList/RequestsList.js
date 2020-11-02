@@ -37,7 +37,7 @@ class RequestsList extends React.Component {
     }
 
     function uncoverList(target) {
-
+      console.log(target.clientHeight);
       if (target.clientHeight != 68) {
         target.classList.add("item_cover");
         target.classList.remove("item_uncover");
@@ -54,21 +54,21 @@ class RequestsList extends React.Component {
   render() {
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
-        return <RequestsItem name = {curr.products[0].name} markup = {curr.markup} price = {curr.products[0].markup} key = {index}/>
+        return <RequestsItem name = {"Продукты"} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
       });
       this.setState({
         itemsList: newItemsList
       })
     }, 1);
     return (
-      <>
+      <div id = {"list"}>
         <div className = {"listNaming"}>
           <span className = {"listNaming__name"}>Название товаров</span>
           <span className = {"listNaming__price"}>Примерная стоимость</span>
           <span className = {"listNaming__markup"}>Доплата</span>
         </div>
         {this.state.itemsList}
-      </>
+      </div>
     )
   }
 }
