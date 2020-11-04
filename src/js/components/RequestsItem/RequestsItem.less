@@ -22,6 +22,17 @@
     position: absolute;
     margin-left: -20px;
     transition: transform .4s;
+    @media screen and (min-width: 320px) and (max-width: 767px) {
+      margin-top: 2px;
+      width: 17px;
+      margin-left: -17px;
+    }
+    @media screen and (min-width: 768px) and (max-width: 1439px) {
+      margin-top: 3px;
+    }
+    @media screen and (min-width: 1440px) {
+      margin-top: 5px;
+    }
   }
   &__order {
     display: none;
@@ -135,6 +146,7 @@
     
     @media screen and (min-width: 320px) and (max-width: 767px) {
       width: 50%;
+      margin-left: 10px;
     }
     @media screen and (min-width: 320px) and (max-width: 459px) {
       width: 40%;
