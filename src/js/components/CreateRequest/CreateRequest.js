@@ -1,10 +1,28 @@
 import React, {Component} from "react";
 import "./CreateRequest.less";
-import database from "../../firebase";
+import { auth, database } from "../../firebase";
 import SubmitRequest from "./SubmitRequest/SubmitRequest";
 
 let ref = database.ref("orders"),
-    data;
+    data,
+    session;
+
+setTimeout(() => {
+  VK.init({
+    apiId: 7649501
+  });
+  VK.Auth.getLoginStatus(function(response) {
+    session = response.session;
+  });
+}, 3000);
+
+setTimeout(function() {
+  var el = document.createElement("script");
+  el.type = "text/javascript";
+  el.src = "https://vk.com/js/api/openapi.js?168";
+  el.async = true;
+  document.getElementById("vk_api_transport").appendChild(el);
+}, 0);
 
 class CreateRequest extends Component {
   constructor(props) {
@@ -18,20 +36,24 @@ class CreateRequest extends Component {
 
   submitForm = (event) => {
     event.preventDefault();
-    
     let wrapper = document.querySelector(".request__wrapper"),
         building = wrapper.querySelector("#order__building"),
         markup = wrapper.querySelector("#order__markup"),
         room = wrapper.querySelector("#order__room"),
         comment = wrapper.querySelector("#order__comment"),
+        user = auth.currentUser,
         request = {
+          uid: user.uid,
+          name: session.user.first_name,
+          surname: session.user.last_name,
+          link: session.user.href,
           products: this.state.products,
           building: building.value,
           markup: markup.value,
           room: room.value,
           comment: comment.value
         };
-
+    console.log(session);
     SubmitRequest.create(request);
   }
 
@@ -70,8 +92,6 @@ class CreateRequest extends Component {
   }
 
   render() {
-    console.log(data);
-    console.log(this.state);
     let itemNew = this.state.products.map((curr, index) => {
       return (
         <>
@@ -86,6 +106,7 @@ class CreateRequest extends Component {
     })
     return (
       <div className = {"request"}>
+        <div id = "vk_api_transport"></div>
         <h2 className = {"request__heading"}>Создание заказа</h2>
         <form className = {"request__form"}>
           <table className = {"request__product product"}>

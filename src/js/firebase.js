@@ -13,7 +13,7 @@ let firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-let database = firebase.database();
+export let database = firebase.database();
+export let auth = firebase.auth();
 
-export default database;
 

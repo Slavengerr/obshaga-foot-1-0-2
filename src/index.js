@@ -10,7 +10,7 @@ import Header from "./js/components/header/header";
 import RequestsList from "./js/components/RequestsList/RequestsList";
 import RequestsItem from "./js/components/RequestsItem/RequestsItem";
 import CreateRequest from "./js/components/CreateRequest/CreateRequest";
-import LoginPage from "./js/components/LoginPage/LoginPage";
+import { LoginPage } from "./js/components/LoginPage/LoginPage";
 
 export default function App() {
   return (

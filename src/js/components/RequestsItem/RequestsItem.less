@@ -11,6 +11,9 @@
   height: auto;
   transition: max-height 1.5s;
   z-index: 10;
+  &__link {
+    z-index: 100;
+  }
   &__addInfo {
     width: 90%;
     text-align: left;
@@ -74,7 +77,7 @@
   text-align: center;
   &_uncover {
     height: auto;
-    max-height: 400px;
+    max-height: 1000px;
     overflow: hidden;
     transition: max-height 1.5s;
     .item__arrow {

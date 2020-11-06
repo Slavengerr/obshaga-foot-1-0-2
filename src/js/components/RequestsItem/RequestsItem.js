@@ -35,6 +35,8 @@ function RequestsItem(props) {
         <span className = {"item__addInfo"}>Номер корпуса:	&nbsp;{props.building}</span>
         <span className = {"item__addInfo"}>Номер комнаты:	&nbsp;{props.room}</span>
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;{props.comment}</span>
+        <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{props.userName}&nbsp;{props.userSurname}</span>
+        <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;<a href = {props.link} className = "item__link">{props.link}</a></span>
         <button className = {"item__order"}>Взять заказ</button>
       </div>
     </div>
