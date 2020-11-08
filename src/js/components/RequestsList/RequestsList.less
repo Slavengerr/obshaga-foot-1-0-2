@@ -30,13 +30,41 @@
     width: 1200px;
     height: 70px;
     font-size: 24px;
-    margin-top: 70px;
     border-radius: 5px;
     padding: 0 20px;
   }
 }
 
 .listNaming {
+  &__buttons {
+    text-align: center;
+    margin-bottom: 5px;
+  }
+  &__button {
+    border: 1px solid #427e67;
+    outline: none;
+    background-color: white;
+    transition: background-color .3s;
+    color: black;
+    font-size: 30px;
+    &:first-of-type {
+      border-top-left-radius: 10px;
+    }
+    &:last-of-type {
+      border-bottom-right-radius: 10px;
+    }
+    &:hover {
+      transition: background-color .3s;
+      background-color: #427e67;
+      border: 1px solid #427e67;
+      color: white;
+      transition: color .3s;
+    }
+    &:active {
+      background-color: #427e67;
+      color: white;
+    }
+  }
   &__price {
     width: 35%;
     text-align: center;

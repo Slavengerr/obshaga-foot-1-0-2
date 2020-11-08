@@ -3,9 +3,17 @@ import "./CreateRequest.less";
 import { auth, database } from "../../firebase";
 import SubmitRequest from "./SubmitRequest/SubmitRequest";
 
-let ref = database.ref("orders"),
+let refID = database.ref("ID"),
+    lastOrderID,
     data,
     session;
+
+refID.on("value", function(snapshot) {
+  snapshot.forEach(function (childSnapshot) {
+      lastOrderID = childSnapshot.val();
+  });
+});
+  
 
 setTimeout(() => {
   VK.init({
@@ -27,11 +35,9 @@ setTimeout(function() {
 class CreateRequest extends Component {
   constructor(props) {
     super(props);
-    
     this.state = {
       products: []
     }
-
   }
 
   submitForm = (event) => {
@@ -43,6 +49,7 @@ class CreateRequest extends Component {
         comment = wrapper.querySelector("#order__comment"),
         user = auth.currentUser,
         request = {
+          id: lastOrderID,
           uid: user.uid,
           name: session.user.first_name,
           surname: session.user.last_name,
@@ -53,7 +60,9 @@ class CreateRequest extends Component {
           room: room.value,
           comment: comment.value
         };
-    console.log(session);
+    refID.set({
+      lastOrderID: ++lastOrderID
+    });
     SubmitRequest.create(request);
   }
 

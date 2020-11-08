@@ -1,6 +1,37 @@
 import React, {Component} from "react";
 import "./RequestsItem.less";
 import  LeftArrow from "../../../img/left-arrow.svg";
+import {auth, database} from "../../firebase";
+
+
+
+function takeOrder(orderID) {
+  let user = auth.currentUser;
+  let ref = database.ref(`users/${user.uid}`),
+      addRef = database.ref("takenOrders/"),
+      takenOrders = [],
+      allTakenOrders = [];
+  addRef.on("value", function(snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      allTakenOrders.push(...childSnapshot.val());
+    });
+  });
+  allTakenOrders.push(orderID);
+  addRef.update({
+    takenOrders: allTakenOrders
+  })
+  ref.on("value", function(snapshot) {
+    snapshot.forEach(function (childSnapshot) {
+      takenOrders.push(...childSnapshot.val());
+    });
+  });
+
+  takenOrders.push(orderID);
+  ref.set({
+    takenOrders
+  })
+  console.log(orderID);
+}
 
 function RequestsItem(props) {
   const products = props.products;
@@ -14,7 +45,7 @@ function RequestsItem(props) {
     )
   });
   return (
-    <div onClick = {props.clickHandler} className = {"item"}>
+    <div onClick = {props.clickHandler} className = {"item"} data-idnumber>
       <span className = {"item__name"}>
         <LeftArrow className = {"item__arrow"}/>
         {props.name}
@@ -37,7 +68,7 @@ function RequestsItem(props) {
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;{props.comment}</span>
         <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{props.userName}&nbsp;{props.userSurname}</span>
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;<a href = {props.link} className = "item__link">{props.link}</a></span>
-        <button className = {"item__order"}>Взять заказ</button>
+        <button onClick = {() => takeOrder(props.orderID)} className = {"item__order"}>Взять заказ</button>
       </div>
     </div>
   )
