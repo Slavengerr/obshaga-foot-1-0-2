@@ -7,7 +7,7 @@ let ref = database.ref("orders");
 
 let items = [],
     session,
-    takenOrders,
+    takenOrders = [],
     addRef = database.ref("takenOrders");
 
 ref.on("value", function(snapshot) {
@@ -71,27 +71,31 @@ class RequestsList extends React.Component {
   showAllOrders = () => {
     this.setState({itemsList: null});
     let user = auth.currentUser,
-        userRef = database.ref(`users/${user.uid}`),
-        userTakenOrders = [];
-    setTimeout(() => {
-      userRef.on("value", function(snapshot) {
-        snapshot.forEach(function(childSnapshot) {
-          userTakenOrders = childSnapshot.val();
-        });
+        userTakenOrders = [],
+        usersOrders = [],
+        refTakenOrders = database.ref("users/" + user.uid + "/takenOrders"),
+        refUsersOrders = database.ref("users/" + user.uid + "/myOrders");
+    refTakenOrders.on("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        userTakenOrders = childSnapshot.val();
       });
-    }, 0);
-
+    })
+    refUsersOrders.on("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        usersOrders = childSnapshot.val();
+      });
+    })
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
-          return (userTakenOrders.includes(curr.id)) ?
-            null
-            :
-            <RequestsItem name = {"Продукты"} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
-        });        
+        return (userTakenOrders.includes(curr.id) || usersOrders.includes(curr.id)) ? 
+        null
+        :
+        <RequestsItem name = {"Продукты"} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+      });
       this.setState({
         itemsList: newItemsList
       })
-    }, 1);  
+    }, 200);
   }
 
   showMyOrders = () => {
@@ -111,6 +115,7 @@ class RequestsList extends React.Component {
   }
 
   showTakenOrders = () => {
+    this.setState({itemsList: null});
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
         return (takenOrders.includes(curr.id)) ? 

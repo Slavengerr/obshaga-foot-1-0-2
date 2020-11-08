@@ -7,7 +7,7 @@ import {auth, database} from "../../firebase";
 
 function takeOrder(orderID) {
   let user = auth.currentUser;
-  let ref = database.ref(`users/${user.uid}`),
+  let ref = database.ref(`users/${user.uid}/takenOrders`),
       addRef = database.ref("takenOrders/"),
       takenOrders = [],
       allTakenOrders = [];
@@ -30,7 +30,6 @@ function takeOrder(orderID) {
   ref.set({
     takenOrders
   })
-  console.log(orderID);
 }
 
 function RequestsItem(props) {

@@ -59,7 +59,24 @@ class CreateRequest extends Component {
           markup: markup.value,
           room: room.value,
           comment: comment.value
-        };
+        },
+        refMyOrders = database.ref(`users/${user.uid}/myOrders`),
+        myOrders = [],
+        userOrders = [];
+    refMyOrders.on("value", function(snapshot) {
+      snapshot.forEach(function(childSnapshot) {
+        if (Array.isArray(childSnapshot.val())) {
+          myOrders.push(...childSnapshot.val());
+        }
+        else {
+          myOrders.push(childSnapshot.val());
+        }
+      })
+    })
+    myOrders.push(lastOrderID);
+    refMyOrders.set({
+      myOrders
+    })
     refID.set({
       lastOrderID: ++lastOrderID
     });
