@@ -3,22 +3,24 @@ import  LeftArrow from "../../../../img/left-arrow.svg";
 import {auth, database} from "../../../firebase";
 import "./MyOrder.less";
 
-function deleteOrder(orderID, index) {
-  let ref = database.ref("orders/"),
-      elements = document.getElementsByClassName("item");
 
-  ref.on("value", function(snapshot) {
-    let counter = 0;
-    snapshot.forEach(function (childSnapshot) {
-      if (childSnapshot.val().id == orderID) {
-        ref.child(Object.keys(snapshot.val())[counter]).remove();
-      }
-      counter++;
-    });
-  });
-}
 
 function MyOrder(props) {
+  function deleteOrder(orderID, index) {
+    props.removeOrder();
+    let ref = database.ref("orders/"),
+        elements = document.getElementsByClassName("item");
+  
+    ref.on("value", function(snapshot) {
+      let counter = 0;
+      snapshot.forEach(function (childSnapshot) {
+        if (childSnapshot.val().id == orderID) {
+          ref.child(Object.keys(snapshot.val())[counter]).remove();
+        }
+        counter++;
+      });
+    });
+  }
   const products = props.products;
   let items = products.map((curr, index) => {
     return (
@@ -29,6 +31,7 @@ function MyOrder(props) {
       </tr>
     )
   });
+  
   return (
     <div onClick = {props.clickHandler} id = {"item_wrapper"} className = {"item"} data-idnumber>
       <span className = {"item__name"}>

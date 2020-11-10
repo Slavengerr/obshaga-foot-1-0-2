@@ -3,6 +3,9 @@ import "./RequestsList.less";
 import RequestsItem from "../RequestsItem/RequestsItem";
 import MyOrder from "./MyOrder/MyOrder";
 import TakenOrder from "./TakenOrder/TakenOrder";
+import ShowAllButton from "./OrdersButtons/ShowAllButton";
+import ShowTakenButton from "./OrdersButtons/ShowTakenButton";
+import ShowMyButton from "./OrdersButtons/ShowMyButton";
 import { auth, database } from "../../firebase";
 
 let ref = database.ref("orders");
@@ -70,7 +73,8 @@ class RequestsList extends React.Component {
     this.clickHandler = this.clickHandler.bind(this);
   }
 
-  showAllOrders = () => {
+  showAllOrders = (() => {
+    console.log("Вызвал метод");
     this.setState({itemsList: null});
     this.setState({
       items: items
@@ -95,7 +99,7 @@ class RequestsList extends React.Component {
         return ((userTakenOrders.includes(curr.id) || usersOrders.includes(curr.id))) ? 
         null
         :
-        <RequestsItem name = {"Продукты"} orderID = {curr.id} index = {index} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+        <RequestsItem name = {"Продукты"} takeOrder = {() => this.showAllOrders()} orderID = {curr.id} index = {index} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
       });
       let isArrayFilledNulls = true;
       for (let i = 0; i < newItemsList.length; i++) {
@@ -109,7 +113,7 @@ class RequestsList extends React.Component {
                         <div>
                           <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Кажется, текущих заявок на доставку нет.</h2>
                           <br />
-                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Но ты не волнуйся, у тебя есть я!</h3>
+                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Попробуй обновить страницу! Быть может, они уже появились?</h3>
                         </div>
         :
         newItemsList
@@ -117,10 +121,10 @@ class RequestsList extends React.Component {
         itemsList: newItemsList
       })
     }, 200);
-  }
+  });
 
   showMyOrders = () => {
-    this.setState({itemsList: null});
+    this.setState({itemsList: null})
     this.setState({
       items: items
     })
@@ -128,7 +132,7 @@ class RequestsList extends React.Component {
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
         return (user.uid == curr.uid) ?
-          <MyOrder orderID = {curr.id} index = {index} name = {"Продукты"} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+          <MyOrder orderID = {curr.id} index = {index} name = {"Продукты"} removeOrder = {() => this.showMyOrders()} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
           :
           null
       });
@@ -152,7 +156,6 @@ class RequestsList extends React.Component {
         itemsList: newItemsList
       })
     }, 1);
-    
   }
 
   showTakenOrders = () => {
@@ -163,7 +166,7 @@ class RequestsList extends React.Component {
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
         return (takenOrders.includes(curr.id) && auth.currentUser != null) ? 
-          <TakenOrder name = {"Продукты"} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+          <TakenOrder name = {"Продукты"} returnBackOrder = {() => this.showTakenOrders()} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
           :
           null
       });
@@ -219,9 +222,9 @@ class RequestsList extends React.Component {
       <div id = {"list"}>
         <div id = "vk_api_transport"></div>
         <div className = {"listNaming__buttons"}>
-          <button onClick = {this.showAllOrders} className = {"listNaming__button"}>Все заказы</button>
-          <button onClick = {this.showMyOrders} className = {"listNaming__button"}>Мои заявки</button>
-          <button onClick = {this.showTakenOrders} className = {"listNaming__button"}>Взятые мной</button>
+          <ShowAllButton showAll = {this.showAllOrders}/>
+          <ShowMyButton showMy = {this.showMyOrders}/>
+          <ShowTakenButton showTaken = {this.showTakenOrders}/>
         </div>
         <div className = {"listNaming"}>
           <span className = {"listNaming__name"}>Название товаров</span>

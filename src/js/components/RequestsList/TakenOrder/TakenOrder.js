@@ -4,44 +4,50 @@ import  LeftArrow from "../../../../img/left-arrow.svg";
 import {auth, database} from "../../../firebase";
 import "./TakenOrder.less";
 
-function returnOrder(orderID) {
-  let user = auth.currentUser,
-      ref = database.ref("takenOrders/"),
-      usersRef = database.ref("users/" + user.uid + "/takenOrders"),
-      allTaken,
-      usersTaken;
 
-  usersRef.on("value", function(snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      usersTaken = childSnapshot.val();
-    });
-  });
-
-  ref.on("value", function(snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      allTaken = childSnapshot.val();
-    });
-  });
-
-  function remove(arr, item) {
-    (~arr.indexOf(item)) ? 
-      arr.splice(arr.indexOf(item), 1)
-      : 
-      null;
-    return arr;
-  }
-  
-  ref.set({
-    takenOrders: remove(allTaken, orderID)
-  });
-
-  usersRef.set({
-    takenOrders: remove(usersTaken, orderID)
-  });
-}
 
 function TakenOrder(props) {
   const products = props.products;
+
+  function returnOrder(props, orderID) {
+    let user = auth.currentUser,
+        ref = database.ref("takenOrders/"),
+        usersRef = database.ref("users/" + user.uid + "/takenOrders"),
+        allTaken,
+        usersTaken;
+    console.log(props.returnBackOrder);
+    props.returnBackOrder();
+  
+    usersRef.on("value", function(snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        usersTaken = childSnapshot.val();
+      });
+    });
+  
+    ref.on("value", function(snapshot) {
+      snapshot.forEach(function (childSnapshot) {
+        allTaken = childSnapshot.val();
+      });
+    });
+  
+    function remove(arr, item) {
+      (~arr.indexOf(item)) ? 
+        arr.splice(arr.indexOf(item), 1)
+        : 
+        null;
+      return arr;
+    }
+    
+    ref.set({
+      takenOrders: remove(allTaken, orderID)
+    });
+  
+    usersRef.set({
+      takenOrders: remove(usersTaken, orderID)
+    });
+  }
+
+
   let items = products.map((curr, index) => {
     return (
       <tr key = {index}>
@@ -75,7 +81,7 @@ function TakenOrder(props) {
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;{props.comment}</span>
         <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{props.userName}&nbsp;{props.userSurname}</span>
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;<a href = {props.link} className = "item__link">{props.link}</a></span>
-        <button onClick = {() => returnOrder(props.orderID)} className = {"item__return"}>Вернуть заказ</button>
+        <button onClick = {() => returnOrder(props, props.orderID)} id = {"item__button_return"} className = {"item__return"}>Вернуть заказ</button>
       </div>
     </div>
   )
