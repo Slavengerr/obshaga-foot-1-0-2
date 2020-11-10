@@ -1,21 +1,25 @@
 import React from "react";
 import "./RequestsList.less";
 import RequestsItem from "../RequestsItem/RequestsItem";
+import MyOrder from "./MyOrder/MyOrder";
+import TakenOrder from "./TakenOrder/TakenOrder";
 import { auth, database } from "../../firebase";
 
 let ref = database.ref("orders");
 
 let items = [],
+    snapshots = [],
     session,
     takenOrders = [],
     addRef = database.ref("takenOrders");
 
 ref.on("value", function(snapshot) {
-    snapshot.forEach(function (childSnapshot) {
-      items.push(childSnapshot.val());
+  let newKey = [];
+  snapshot.forEach(function (childSnapshot) {
+    newKey.push(childSnapshot.val());
+    items = newKey;
   });
 });
-
 window.vkAsyncInit = function() {
   VK.init({
     apiId: 7649501
@@ -42,6 +46,7 @@ window.vkAsyncInit = function() {
 }
 
 addRef.on("value", function(snapshot) {
+  takenOrders = [];
   snapshot.forEach(function(childSnapshot) {
     takenOrders = childSnapshot.val();
   });
@@ -57,19 +62,19 @@ setTimeout(function() {
 
 class RequestsList extends React.Component {
   constructor(props) {
-
     super(props);
-
     this.state = {
       items: items,
-      itemsList: null,
+      itemsList: null
     }
-
     this.clickHandler = this.clickHandler.bind(this);
   }
 
   showAllOrders = () => {
     this.setState({itemsList: null});
+    this.setState({
+      items: items
+    })
     let user = auth.currentUser,
         userTakenOrders = [],
         usersOrders = [],
@@ -79,19 +84,35 @@ class RequestsList extends React.Component {
       snapshot.forEach(function(childSnapshot) {
         userTakenOrders = childSnapshot.val();
       });
-    })
+    });
     refUsersOrders.on("value", function(snapshot) {
       snapshot.forEach(function(childSnapshot) {
         usersOrders = childSnapshot.val();
       });
-    })
+    });
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
-        return (userTakenOrders.includes(curr.id) || usersOrders.includes(curr.id)) ? 
+        return ((userTakenOrders.includes(curr.id) || usersOrders.includes(curr.id))) ? 
         null
         :
-        <RequestsItem name = {"Продукты"} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+        <RequestsItem name = {"Продукты"} orderID = {curr.id} index = {index} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
       });
+      let isArrayFilledNulls = true;
+      for (let i = 0; i < newItemsList.length; i++) {
+        if (newItemsList[i] != null) {
+          isArrayFilledNulls = false;
+          break;
+        }
+      }
+      isArrayFilledNulls ?
+        newItemsList = 
+                        <div>
+                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Кажется, текущих заявок на доставку нет.</h2>
+                          <br />
+                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Но ты не волнуйся, у тебя есть я!</h3>
+                        </div>
+        :
+        newItemsList
       this.setState({
         itemsList: newItemsList
       })
@@ -100,29 +121,68 @@ class RequestsList extends React.Component {
 
   showMyOrders = () => {
     this.setState({itemsList: null});
+    this.setState({
+      items: items
+    })
     let user = auth.currentUser;
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
         return (user.uid == curr.uid) ?
-          <RequestsItem name = {"Продукты"} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+          <MyOrder orderID = {curr.id} index = {index} name = {"Продукты"} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
           :
           null
       });
+      let isArrayFilledNulls = true;
+      for (let i = 0; i < newItemsList.length; i++) {
+        if (newItemsList[i] != null) {
+          isArrayFilledNulls = false;
+          break;
+        }
+      }
+      isArrayFilledNulls ?
+        newItemsList = 
+                        <div>
+                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Ваш список поданых заявок на доставку пуст.</h2>
+                          <br />
+                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Вы можете подать заявку по кнопке "Запросы".</h3>
+                        </div>
+        :
+        newItemsList
       this.setState({
         itemsList: newItemsList
       })
     }, 1);
+    
   }
 
   showTakenOrders = () => {
     this.setState({itemsList: null});
+    this.setState({
+      items: items
+    })
     setTimeout(() => {
       let newItemsList = this.state.items.map((curr, index) => {
-        return (takenOrders.includes(curr.id)) ? 
-          <RequestsItem name = {"Продукты"} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
+        return (takenOrders.includes(curr.id) && auth.currentUser != null) ? 
+          <TakenOrder name = {"Продукты"} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
           :
           null
       });
+      let isArrayFilledNulls = true;
+      for (let i = 0; i < newItemsList.length; i++) {
+        if (newItemsList[i] != null) {
+          isArrayFilledNulls = false;
+          break;
+        }
+      }
+      isArrayFilledNulls ?
+        newItemsList = 
+                        <div>
+                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Ваш список взятых заказов пуст.</h2>
+                          <br />
+                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Вы можете взять заказ из пункта "Все заказы".</h3>
+                        </div>
+        :
+        newItemsList
       this.setState({
         itemsList: newItemsList
       })
@@ -141,7 +201,6 @@ class RequestsList extends React.Component {
     }
 
     function uncoverList(target) {
-      console.log(target.clientHeight);
       if (target.clientHeight != 68) {
         target.classList.add("item_cover");
         target.classList.remove("item_uncover");
@@ -160,7 +219,7 @@ class RequestsList extends React.Component {
       <div id = {"list"}>
         <div id = "vk_api_transport"></div>
         <div className = {"listNaming__buttons"}>
-          <button onClick = {this.showAllOrders} className = {"listNaming__button"}>Все заявки</button>
+          <button onClick = {this.showAllOrders} className = {"listNaming__button"}>Все заказы</button>
           <button onClick = {this.showMyOrders} className = {"listNaming__button"}>Мои заявки</button>
           <button onClick = {this.showTakenOrders} className = {"listNaming__button"}>Взятые мной</button>
         </div>
