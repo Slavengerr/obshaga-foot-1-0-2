@@ -7,9 +7,7 @@ import "./MyOrder.less";
 
 function MyOrder(props) {
   function deleteOrder(orderID, index) {
-    props.removeOrder();
-    let ref = database.ref("orders/"),
-        elements = document.getElementsByClassName("item");
+    let ref = database.ref("orders/");
   
     ref.on("value", function(snapshot) {
       let counter = 0;
@@ -56,7 +54,7 @@ function MyOrder(props) {
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;{props.comment}</span>
         <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{props.userName}&nbsp;{props.userSurname}</span>
         <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;<a href = {props.link} className = "item__link">{props.link}</a></span>
-        <button onClick = {() => deleteOrder(props.orderID, props.index)} id = {"item__button_delete"} className = {"item__delete"}>Удалить заказ</button>
+        <button onClick = {() => deleteOrder(props.id)} id = {"item__button_delete"} className = {"item__delete"}>Удалить заказ</button>
       </div>
     </div>
   )

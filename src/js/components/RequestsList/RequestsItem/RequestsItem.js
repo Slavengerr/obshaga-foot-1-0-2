@@ -1,7 +1,7 @@
 import React, {Component} from "react";
 import "./RequestsItem.less";
-import  LeftArrow from "../../../img/left-arrow.svg";
-import {auth, database} from "../../firebase";
+import  LeftArrow from "./../../../../img/left-arrow.svg";
+import {auth, database} from "./../../../firebase";
 import { render } from "less";
 
 class RequestsItem extends Component {
@@ -11,7 +11,6 @@ class RequestsItem extends Component {
   takeOrder = ((orderID, index) => {
     let user = auth.currentUser;
     if (user != null) {
-      this.props.takeOrder();
       let ref = database.ref(`users/${user.uid}/takenOrders`),
           addRef = database.ref("takenOrders/"),
           takenOrders = [],
@@ -56,7 +55,7 @@ class RequestsItem extends Component {
       <div onClick = {this.props.clickHandler} className = {"item"} data-idnumber>
         <span className = {"item__name"}>
           <LeftArrow className = {"item__arrow"}/>
-          {this.props.name}
+          Продукты
           </span>
         <span className = {"item__price"}>{this.props.price} рублей</span>
         <span className = {"item__markup"}>{this.props.markup}</span>
@@ -74,9 +73,9 @@ class RequestsItem extends Component {
           <span className = {"item__addInfo"}>Номер корпуса:	&nbsp;{this.props.building}</span>
           <span className = {"item__addInfo"}>Номер комнаты:	&nbsp;{this.props.room}</span>
           <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;{this.props.comment}</span>
-          <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{this.props.userName}&nbsp;{this.props.userSurname}</span>
+          <span className = {"item__addInfo"}>Заказ выполнил:	&nbsp;{this.props.name}&nbsp;{this.props.surname}</span>
           <span className = {"item__addInfo"}>Комментарий заказчика:	&nbsp;<a href = {this.props.link} className = "item__link">{this.props.link}</a></span>
-          <button onClick = {() => this.takeOrder(this.props.orderID, this.index)} id = {"item__order_get"} className = {"item__order"}>Взять заказ</button>
+          <button onClick = {() => this.takeOrder(this.props.id, this.index)} id = {"item__order_get"} className = {"item__order"}>Взять заказ</button>
         </div>
       </div>
     )

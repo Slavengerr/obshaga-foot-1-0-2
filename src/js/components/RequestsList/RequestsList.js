@@ -1,198 +1,113 @@
 import React from "react";
 import "./RequestsList.less";
-import RequestsItem from "../RequestsItem/RequestsItem";
+import RequestsItem from "./RequestsItem/RequestsItem";
 import MyOrder from "./MyOrder/MyOrder";
 import TakenOrder from "./TakenOrder/TakenOrder";
 import ShowAllButton from "./OrdersButtons/ShowAllButton";
 import ShowTakenButton from "./OrdersButtons/ShowTakenButton";
 import ShowMyButton from "./OrdersButtons/ShowMyButton";
+import {NavLink, Route, BrowserRouter as Router} from "react-router-dom";
 import { auth, database } from "../../firebase";
 
-let ref = database.ref("orders");
+let ref = database.ref("orders"),
+    addRef = database.ref("takenOrders"),
+    userOrders;
 
 let items = [],
-    snapshots = [],
+    currentUser,
     session,
     takenOrders = [],
-    addRef = database.ref("takenOrders");
+    usersOrdersList = [];
+     
 
-ref.on("value", function(snapshot) {
-  let newKey = [];
-  snapshot.forEach(function (childSnapshot) {
-    newKey.push(childSnapshot.val());
-    items = newKey;
-  });
-});
-window.vkAsyncInit = function() {
-  VK.init({
-    apiId: 7649501
-  });
-  VK.Auth.login(function(response) {
-    session = response.session;
-    auth.onAuthStateChanged(function(user) {
-      if (user) {
-        
-      } 
-      else {
-        auth.createUserWithEmailAndPassword("vk" + session.mid*8 + "@gmail.com", session.mid*2 + "")
-          .then(u => {})
-          .catch(error => {
-            switch (error.code) {
-              case "auth/email-already-in-use":
-                auth.signInWithEmailAndPassword("vk" + session.mid*8 + "@gmail.com", session.mid*2 + "");
-                break;
-            }   
-          })
-        }
+auth.onAuthStateChanged(function(user) {
+  if (user) {
+    currentUser = user;
+    userOrders = database.ref("users/" + user.uid + "/takenOrders");
+    console.log("Сделал юзеру");
+  } 
+  else {
+    window.vkAsyncInit = function() {
+      VK.init({
+        apiId: 7649501
       });
-    });
-}
-
-addRef.on("value", function(snapshot) {
-  takenOrders = [];
-  snapshot.forEach(function(childSnapshot) {
-    takenOrders = childSnapshot.val();
-  });
-})
-
-setTimeout(function() {
-  var el = document.createElement("script");
-  el.type = "text/javascript";
-  el.src = "https://vk.com/js/api/openapi.js?168";
-  el.async = true;
-  document.getElementById("vk_api_transport").appendChild(el);
-}, 0);
+      VK.Auth.login(function(response) {
+        session = response.session;   
+      });
+    }
+    auth.createUserWithEmailAndPassword("vk" + session.mid*8 + "@gmail.com", session.mid*2 + "")
+      .then(u => {})
+      .catch(error => {
+        switch (error.code) {
+          case "auth/email-already-in-use":
+            auth.signInWithEmailAndPassword("vk" + session.mid*8 + "@gmail.com", session.mid*2 + "");
+            break;
+      }   
+    })
+    setTimeout(function() {
+      var el = document.createElement("script");
+      el.type = "text/javascript";
+      el.src = "https://vk.com/js/api/openapi.js?168";
+      el.async = true;
+      document.getElementById("vk_api_transport").appendChild(el);
+    }, 0);
+  }
+});
 
 class RequestsList extends React.Component {
+
   constructor(props) {
     super(props);
     this.state = {
-      items: items,
-      itemsList: null
+      items: [],
+      content: '',
+      readError: null,
+      writeError: null
     }
+
+
     this.clickHandler = this.clickHandler.bind(this);
   }
 
-  showAllOrders = (() => {
-    console.log("Вызвал метод");
-    this.setState({itemsList: null});
-    this.setState({
-      items: items
-    })
-    let user = auth.currentUser,
-        userTakenOrders = [],
-        usersOrders = [],
-        refTakenOrders = database.ref("users/" + user.uid + "/takenOrders"),
-        refUsersOrders = database.ref("users/" + user.uid + "/myOrders");
-    refTakenOrders.on("value", function(snapshot) {
-      snapshot.forEach(function(childSnapshot) {
-        userTakenOrders = childSnapshot.val();
+  async componentDidMount() {
+    this.setState({ 
+      readError: null,
+      user: auth.currentUser,
+      usersOrdersList: []
+   });
+    try {
+      ref.on("value", snapshot => {
+        let items = [];
+        snapshot.forEach((snap) => {
+          items.push(snap.val());
+        });
+        this.setState({ items });
       });
-    });
-    refUsersOrders.on("value", function(snapshot) {
-      snapshot.forEach(function(childSnapshot) {
-        usersOrders = childSnapshot.val();
+      addRef.on("value", snapshot => {
+        takenOrders = [];
+        snapshot.forEach((snap) => {
+          takenOrders = snap.val();
+        });
+        this.setState({takenOrders}) /** ЗДЕСЬ ПОСМОТРИ ЧТО ЗА ХУЙНЯ БЫЛА. */
       });
-    });
-    setTimeout(() => {
-      let newItemsList = this.state.items.map((curr, index) => {
-        return ((userTakenOrders.includes(curr.id) || usersOrders.includes(curr.id))) ? 
-        null
-        :
-        <RequestsItem name = {"Продукты"} takeOrder = {() => this.showAllOrders()} orderID = {curr.id} index = {index} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
-      });
-      let isArrayFilledNulls = true;
-      for (let i = 0; i < newItemsList.length; i++) {
-        if (newItemsList[i] != null) {
-          isArrayFilledNulls = false;
-          break;
-        }
-      }
-      isArrayFilledNulls ?
-        newItemsList = 
-                        <div>
-                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Кажется, текущих заявок на доставку нет.</h2>
-                          <br />
-                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Попробуй обновить страницу! Быть может, они уже появились?</h3>
-                        </div>
-        :
-        newItemsList
-      this.setState({
-        itemsList: newItemsList
-      })
-    }, 200);
-  });
-
-  showMyOrders = () => {
-    this.setState({itemsList: null})
-    this.setState({
-      items: items
-    })
-    let user = auth.currentUser;
-    setTimeout(() => {
-      let newItemsList = this.state.items.map((curr, index) => {
-        return (user.uid == curr.uid) ?
-          <MyOrder orderID = {curr.id} index = {index} name = {"Продукты"} removeOrder = {() => this.showMyOrders()} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
-          :
-          null
-      });
-      let isArrayFilledNulls = true;
-      for (let i = 0; i < newItemsList.length; i++) {
-        if (newItemsList[i] != null) {
-          isArrayFilledNulls = false;
-          break;
-        }
-      }
-      isArrayFilledNulls ?
-        newItemsList = 
-                        <div>
-                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Ваш список поданых заявок на доставку пуст.</h2>
-                          <br />
-                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Вы можете подать заявку по кнопке "Запросы".</h3>
-                        </div>
-        :
-        newItemsList
-      this.setState({
-        itemsList: newItemsList
-      })
-    }, 1);
+      console.log("здесь");
+      console.log(auth.currentUser);
+      setTimeout(() => {
+        userOrders.on("value", snapshot => {
+          let usersOrdersList;
+          snapshot.forEach((snap) => {
+            usersOrdersList = snap.val();
+          });
+          this.setState({usersOrdersList}); /** ЗДЕСЬ ПОСМОТРИ ЧТО ЗА ХУЙНЯ БЫЛА. */
+        });
+      }, 5000);
+    } 
+    catch (error) {
+      this.setState({ readError: error.message });
+    }
   }
 
-  showTakenOrders = () => {
-    this.setState({itemsList: null});
-    this.setState({
-      items: items
-    })
-    setTimeout(() => {
-      let newItemsList = this.state.items.map((curr, index) => {
-        return (takenOrders.includes(curr.id) && auth.currentUser != null) ? 
-          <TakenOrder name = {"Продукты"} returnBackOrder = {() => this.showTakenOrders()} orderID = {curr.id} userName = {curr.name} userSurname = {curr.surname} link = {curr.link} products = {curr.products} markup = {curr.markup} onClick = {this.clickHandler()} building = {curr.building} room = {curr.room} comment = {curr.comment} price = {"100"} key = {index}/>
-          :
-          null
-      });
-      let isArrayFilledNulls = true;
-      for (let i = 0; i < newItemsList.length; i++) {
-        if (newItemsList[i] != null) {
-          isArrayFilledNulls = false;
-          break;
-        }
-      }
-      isArrayFilledNulls ?
-        newItemsList = 
-                        <div>
-                          <h2 className = {"listNaming__myOrders_empty listNaming__myOrders_header"}>Ваш список взятых заказов пуст.</h2>
-                          <br />
-                          <h3 className = {"listNaming__myOrders_empty listNaming__myOrders_sub"}>Вы можете взять заказ из пункта "Все заказы".</h3>
-                        </div>
-        :
-        newItemsList
-      this.setState({
-        itemsList: newItemsList
-      })
-    }, 1);
-  }
-
-  clickHandler(name, markup, price) {
+  clickHandler = () => {
     const table = document.getElementById("list");
 
     table.onclick = function(event) {
@@ -218,20 +133,48 @@ class RequestsList extends React.Component {
   }
 
   render() {
+    let newItems = this.state.items == 0 ? null : this.state.items;
     return (
       <div id = {"list"}>
         <div id = "vk_api_transport"></div>
         <div className = {"listNaming__buttons"}>
-          <ShowAllButton showAll = {this.showAllOrders}/>
-          <ShowMyButton showMy = {this.showMyOrders}/>
-          <ShowTakenButton showTaken = {this.showTakenOrders}/>
+          <NavLink to = "/all_orders" activeClassName = {"listNaming__button_active"} className = {"listNaming__button"}>Все заказы</NavLink>
+          <NavLink to = "/my_orders" activeClassName = {"listNaming__button_active"} className = {"listNaming__button"}>Мои заказы</NavLink>
+          <NavLink to = "/taken_orders" activeClassName = {"listNaming__button_active"} className = {"listNaming__button"}>Взятые мной</NavLink>
         </div>
         <div className = {"listNaming"}>
           <span className = {"listNaming__name"}>Название товаров</span>
           <span className = {"listNaming__price"}>Примерная стоимость</span>
           <span className = {"listNaming__markup"}>Доплата</span>
         </div>
-        {this.state.itemsList}
+        {newItems ? 
+          <Route path = "/all_orders" render = {
+            () => {
+            return newItems.map((curr, index) => {
+              if (currentUser.uid != curr.uid && !takenOrders.includes(curr.id)) {
+                return <RequestsItem {...curr} onClick = {this.clickHandler()} key = {index}/>}})
+            }}>            
+          </Route> : null}
+          {newItems ? 
+          <Route path = "/my_orders" render = {
+            () => {
+              return newItems.map((curr, index) => {
+                if (currentUser.uid == curr.uid) {
+                  return <MyOrder {...curr} onClick = {this.clickHandler()} key = {index}></MyOrder>
+                }
+              })
+            }}>            
+          </Route> : null}
+          {newItems ? 
+          <Route path = "/taken_orders" render = {
+            () => {
+              return newItems.map((curr, index) => {
+                if (this.state.usersOrdersList.includes(curr.id)) {
+                  return <TakenOrder {...curr} onClick = {this.clickHandler()} key = {index}></TakenOrder>
+                }
+              })
+            }}>            
+          </Route> : null}
       </div>
     )
   }

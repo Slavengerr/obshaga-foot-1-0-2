@@ -8,19 +8,16 @@ import {
 import "./less/style.less";
 import Header from "./js/components/header/header";
 import RequestsList from "./js/components/RequestsList/RequestsList";
-import RequestsItem from "./js/components/RequestsItem/RequestsItem";
 import CreateRequest from "./js/components/CreateRequest/CreateRequest";
 import { LoginPage } from "./js/components/LoginPage/LoginPage";
+import TestMain from "./js/components/test/testMain";
 
 export default function App() {
   return (
     <Router>
       <Header />
-      <Switch>        
-        <Route exact path = "/request" component = {CreateRequest}></Route>
-        <Route exact path = "/auth" component = {LoginPage}></Route>
-        <Route exact path = "/" component = {RequestsList}></Route>
-      </Switch>
+      <Route exact path = "/request" component = {CreateRequest}></Route>
+      <Route path = "/" component = {RequestsList}></Route>
     </Router>
   )
 }
